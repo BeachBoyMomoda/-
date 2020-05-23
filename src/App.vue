@@ -21,8 +21,9 @@ html {
 
 body {
   height: 100%;
+  background-image: url('./static/img/bkg1.gif');
   background-attachment: fixed;
-  background-position: center;
+  background-position: right;
   background-size: cover;
 }
 
