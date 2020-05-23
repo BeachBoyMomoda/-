@@ -28,6 +28,15 @@
           </el-col>
         </el-row>
       </el-form-item>
+      <el-form-item label="热门">
+        <el-tag
+          style="margin-left: 10px"
+          :key="tag"
+          v-for="tag in hotFilms"
+          @click="handleSelect(tag)">
+          {{tag}}
+        </el-tag>
+      </el-form-item>
       <el-form-item label="导演">
         <el-input v-model="postForm.director" />
       </el-form-item>
@@ -71,7 +80,7 @@
       </el-form-item>
     </el-form>
     <el-button type="primary" icon="el-icon-refresh-right" v-if="!formVisible" class="reset_button_container" @click="handleReset">重新搜索</el-button>
-    <el-table v-if="searchResult.length>0" :data="searchResult" size="medium" class="table_container">
+    <el-table v-if="searchResult.length>0" height="700" stripe :data="searchResult" size="medium" class="table_container">
       <el-table-column label="片名" prop="title" width="160px">
         <template slot-scope="scope">
           <el-row>
@@ -115,10 +124,24 @@ export default {
       searchResult: [],
       suggestList: [],
       tagOptions: ['剧情','爱情','恐怖','战争','喜剧'],
-      locationOptions: ['中国','港台','日本','韩国','美国']
+      locationOptions: ['中国','港台','日本','韩国','美国'],
+      hotFilms: []
     }
   },
+  created () {
+    this.fetchHot()
+  },
   methods: {
+    fetchHot () {
+      this.$http.get('http://39.96.37.67:8080/hotSearchFilmTitle',{
+        params:{
+          ends: 5,
+          start:0
+        }
+      }).then(res=>{
+        this.hotFilms = res.body
+      })
+    },
     handleSearch () {
       let params={
         lowRating: this.postForm.rating[0],
@@ -164,6 +187,9 @@ export default {
     handleReset () {
       this.formVisible = true
       this.searchResult = []
+    },
+    handleSelect (tag) {
+      this.postForm.title = tag
     }
   }
 }
@@ -180,15 +206,18 @@ export default {
 }
 .reset_button_container{
   position: absolute;
-  top: 20px;
+  top: 0px;
   left: 100px;
-  width: 10%;
+  width: 6%;
 }
 .table_container {
   position: absolute;
-  top: 100px;
+  top: 60px;
   left: 0px;
   width: 100%;
+}
+.black_label {
+  color: yellow;
 }
 .search-input input {
   border: 1px solid #e4e4e4;
