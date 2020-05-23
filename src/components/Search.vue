@@ -1,8 +1,9 @@
 <template>
   <div>
     <!--监听子组件的时间-->
-    <img src="../static/img/logo.png" />
+    <img v-if="formVisible" src="../static/img/logo.png" />
     <el-form
+      v-if="formVisible"
       ref="postForm"
       :model="postForm"
       :rules="rules"
@@ -69,6 +70,7 @@
         </el-slider>
       </el-form-item>
     </el-form>
+    <el-button type="primary" icon="el-icon-refresh-right" v-if="!formVisible" class="reset_button_container" @click="handleReset">重新搜索</el-button>
     <el-table v-if="searchResult.length>0" :data="searchResult" size="medium" class="table_container">
       <el-table-column label="片名" prop="title" width="160px">
         <template slot-scope="scope">
@@ -97,6 +99,7 @@
 export default {
   data: function () {
     return {
+      formVisible: true,
       postForm: {
         title: '',
         director: '',
@@ -142,6 +145,7 @@ export default {
       }).then(res => {
         this.searchResult = res.body
       })
+      this.formVisible = false
     },
     handleSuggest () {
       console.log('suggest!!!!!!!!!!!!')
@@ -156,6 +160,10 @@ export default {
     },
     suggestItemClick(item) {
       this.postForm.title = item
+    },
+    handleReset () {
+      this.formVisible = true
+      this.searchResult = []
     }
   }
 }
@@ -167,12 +175,18 @@ export default {
   height: 100%;
   position: absolute;
   top: 160px;
-  left: 400px;
+  left: 500px;
   width: 40%;
+}
+.reset_button_container{
+  position: absolute;
+  top: 20px;
+  left: 100px;
+  width: 10%;
 }
 .table_container {
   position: absolute;
-  top: 600px;
+  top: 100px;
   left: 0px;
   width: 100%;
 }
