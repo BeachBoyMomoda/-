@@ -1,15 +1,17 @@
 <template>
   <div id="app">
-    <Search></Search>
+    <router-view />
   </div>
 </template>
 
 <script>
 import Search from './components/Search'
+import Result from './components/Result'
 
 export default {
   components: {
-    Search
+    Search,
+    Result
   }
 }
 </script>

@@ -1,9 +1,8 @@
 <template>
   <div>
     <!--监听子组件的时间-->
-    <img v-if="formVisible" src="../static/img/logo.png" />
+    <img src="../static/img/logo.png" />
     <el-form
-      v-if="formVisible"
       ref="postForm"
       :model="postForm"
       :rules="rules"
@@ -79,28 +78,6 @@
         </el-slider>
       </el-form-item>
     </el-form>
-    <el-button type="primary" icon="el-icon-refresh-right" v-if="!formVisible" class="reset_button_container" @click="handleReset">重新搜索</el-button>
-    <el-table v-if="searchResult.length>0" height="700" stripe :data="searchResult" size="medium" class="table_container">
-      <el-table-column label="片名" prop="title" width="160px">
-        <template slot-scope="scope">
-          <el-row>
-            <el-col>
-              {{scope.row.title}}
-            </el-col>
-            <el-col>
-              <img :src="scope.row.imagePath" width="100px"  alt="加载失败"/>
-            </el-col>
-          </el-row>
-        </template>
-      </el-table-column>
-      <el-table-column label="上映日期" prop="releaseDate" width="120px" />
-      <el-table-column label="地区" prop="location" width="80px" />
-      <el-table-column label="导演" prop="director" />
-      <el-table-column label="演员" prop="actors" width="300px"/>
-      <el-table-column label="简介" prop="summary" width="300px"/>
-      <el-table-column label="标签" prop="tags" />
-      <el-table-column label="评分" prop="rating" width="80px" />
-    </el-table>
   </div>
 </template>
 
@@ -108,7 +85,6 @@
 export default {
   data: function () {
     return {
-      formVisible: true,
       postForm: {
         title: '',
         director: '',
@@ -121,11 +97,11 @@ export default {
       visible: false,
       rules: {},
       tags: [],
-      searchResult: [],
       suggestList: [],
       tagOptions: ['剧情','爱情','恐怖','战争','喜剧'],
       locationOptions: ['中国','港台','日本','韩国','美国'],
-      hotFilms: []
+      hotFilms: [],
+      paramStr: ''
     }
   },
   created () {
@@ -142,33 +118,30 @@ export default {
         this.hotFilms = res.body
       })
     },
-    handleSearch () {
-      let params={
-        lowRating: this.postForm.rating[0],
-        toRating: this.postForm.rating[1]
-      }
+    handleSearch: function() {
+      let paramStr = '?lowRating=' + this.postForm.rating[0] + '&toRating=' + this.postForm.rating[1]
       if (this.postForm.title !== '') {
-        params['title']= this.postForm.title
+        paramStr += '&title=' + this.postForm.title
       }
       if (this.postForm.actors !== '') {
-        params['actors'] =this.postForm.actors
+        paramStr += '&actors=' + this.postForm.actors
+      }
+      if (this.postForm.director !== '') {
+        paramStr += '&author=' + this.postForm.director
+      }
+      if (this.postForm.summary !== '') {
+        paramStr += '&summary=' + this.postForm.summary
       }
       for(let tag in this.tags){
         this.postForm.tags += ',' + tag
       }
       if (this.postForm.tags !== '') {
-        params['tags'] =this.postForm.tags
+        paramStr += '&tags=' + this.postForm.tags
       }
-
       if (this.postForm.location !== '') {
-        params['location'] =this.postForm.location
+        paramStr += '&location=' + this.postForm.location
       }
-      this.$http.get('http://39.96.37.67:8080/match', {
-        params: params
-      }).then(res => {
-        this.searchResult = res.body
-      })
-      this.formVisible = false
+      this.$router.push({path:'/result', query: {paramStr}})
     },
     handleSuggest () {
       console.log('suggest!!!!!!!!!!!!')
@@ -183,10 +156,6 @@ export default {
     },
     suggestItemClick(item) {
       this.postForm.title = item
-    },
-    handleReset () {
-      this.formVisible = true
-      this.searchResult = []
     },
     handleSelect (tag) {
       this.postForm.title = tag
